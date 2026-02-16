@@ -1,8 +1,6 @@
-// login.js — sửa để: Email/Pass + Google => nhảy qua dashboard
+// login.js — login email + google -> chuyển #dashboard
 
-const DASHBOARD_URL = "./dashboard.html"; // ✅ đổi nếu dashboard ở folder khác
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import {
   getAuth,
   onAuthStateChanged,
@@ -12,7 +10,7 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
-/** firebaseConfig */
+// ====== CONFIG ======
 const firebaseConfig = {
   apiKey: "AIzaSyDfZPIg6Nif_Mx_Wwyl0byM6vJCd5BLgo8",
   authDomain: "xuanbinhngo-2026.firebaseapp.com",
@@ -23,14 +21,13 @@ const firebaseConfig = {
   measurementId: "G-FN0BFL9FQQ"
 };
 
-const app = initializeApp(firebaseConfig);
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 const $ = (id) => document.getElementById(id);
 
 const emailInput = $("email");
 const passwordInput = $("password");
-
 const btnLogin = $("btnLogin");
 const btnGoogle = $("btnGoogle");
 const btnLogout = $("btnLogout");
@@ -44,72 +41,68 @@ const userEmail = $("userEmail");
 
 const DEFAULT_AVATAR = "https://api.dicebear.com/7.x/thumbs/svg?seed=Xuan12A1";
 
-function show(text, isError = false) {
+function show(text, isError=false){
   if (!msg) return;
   msg.textContent = text || "";
   msg.classList.toggle("danger", isError);
 }
 
-function goDashboard() {
-  // ✅ thay location.href để chạy tốt trên GitHub Pages
-  window.location.assign(DASHBOARD_URL);
-}
-
-/* Đăng nhập Email */
+/* Email login */
 btnLogin?.addEventListener("click", async () => {
-  try {
+  try{
     show("");
     const email = (emailInput?.value || "").trim();
     const pass = (passwordInput?.value || "").trim();
-
-    if (!email || !pass) return show("Vui lòng nhập email và mật khẩu.", true);
+    if(!email || !pass) return show("Vui lòng nhập email và mật khẩu.", true);
 
     await signInWithEmailAndPassword(auth, email, pass);
-    show("Đăng nhập thành công! Đang chuyển...");
 
-    setTimeout(goDashboard, 600);
-  } catch (err) {
-    show(err?.message || "Có lỗi đăng nhập.", true);
+    show("Đăng nhập thành công! Đang chuyển...");
+    setTimeout(() => {
+      window.location.hash = "#dashboard";
+    }, 350);
+  }catch(err){
+    show(err?.message || "Đăng nhập lỗi.", true);
   }
 });
 
-/* Google */
+/* Google login */
 btnGoogle?.addEventListener("click", async () => {
-  try {
+  try{
     show("");
     const provider = new GoogleAuthProvider();
-
     await signInWithPopup(auth, provider);
-    show("Đăng nhập Google thành công! Đang chuyển...");
 
-    setTimeout(goDashboard, 600);
-  } catch (err) {
-    show(err?.message || "Google đăng nhập lỗi.", true);
+    show("Đăng nhập Google thành công! Đang chuyển...");
+    setTimeout(() => {
+      window.location.hash = "#dashboard";
+    }, 350);
+  }catch(err){
+    show(err?.message || "Google login lỗi.", true);
   }
 });
 
-/* Đăng xuất (phần status) */
+/* Logout (nếu bạn có UI status) */
 btnLogout?.addEventListener("click", async () => {
   await signOut(auth);
   show("Đã đăng xuất.");
+  window.location.hash = "#login";
 });
 
-/* Trạng thái */
+/* Status demo */
 onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    loggedOut?.classList.remove("hidden");
-    loggedIn?.classList.add("hidden");
+  if(!loggedOut || !loggedIn) return;
+
+  if(!user){
+    loggedOut.classList.remove("hidden");
+    loggedIn.classList.add("hidden");
     return;
   }
 
-  loggedOut?.classList.add("hidden");
-  loggedIn?.classList.remove("hidden");
+  loggedOut.classList.add("hidden");
+  loggedIn.classList.remove("hidden");
 
   if (avatar) avatar.src = user.photoURL || DEFAULT_AVATAR;
   if (nameEl) nameEl.textContent = user.displayName || "User";
-  if (userEmail) userEmail.textContent = user.email || "";
-
-  // ✅ Nếu đang ở trang login mà đã login rồi -> đi dashboard luôn
-  // (tránh trường hợp F5 vẫn ở login)
-  setTimeout(goDashboard, 200);
+  if (userEmail) userEmail.textContent = user.email || (user.isAnonymous ? "Tài khoản Khách" : "");
 });
