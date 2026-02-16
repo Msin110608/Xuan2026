@@ -1,8 +1,6 @@
-// register.js — sửa để: Đăng ký + Khách => nhảy qua dashboard
+// register.js — register + guest -> chuyển #dashboard
 
-const DASHBOARD_URL = "./dashboard.html"; // ✅ đổi nếu dashboard ở folder khác
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import {
   getAuth,
   onAuthStateChanged,
@@ -12,7 +10,7 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
-/* FIREBASE CONFIG */
+// ====== CONFIG ======
 const firebaseConfig = {
   apiKey: "AIzaSyDfZPIg6Nif_Mx_Wwyl0byM6vJCd5BLgo8",
   authDomain: "xuanbinhngo-2026.firebaseapp.com",
@@ -23,7 +21,7 @@ const firebaseConfig = {
   measurementId: "G-FN0BFL9FQQ"
 };
 
-const app = initializeApp(firebaseConfig);
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 const $ = (id) => document.getElementById(id);
@@ -51,11 +49,7 @@ function show(text, isError = false) {
   msg.classList.toggle("danger", isError);
 }
 
-function goDashboard() {
-  window.location.assign(DASHBOARD_URL);
-}
-
-/* Đăng ký */
+/* Register */
 btnRegister?.addEventListener("click", async () => {
   try {
     show("");
@@ -74,14 +68,17 @@ btnRegister?.addEventListener("click", async () => {
       photoURL: DEFAULT_AVATAR
     });
 
-    show("Đăng ký thành công! Đang chuyển...");
-    setTimeout(goDashboard, 600);
+    show("Đăng ký thành công! Đang vào Dashboard...");
+    setTimeout(() => {
+      window.location.hash = "#dashboard";
+    }, 350);
+
   } catch (err) {
-    show(err?.message || "Có lỗi đăng ký.", true);
+    show(err?.message || "Có lỗi xảy ra.", true);
   }
 });
 
-/* Khách (phải nhập tên) */
+/* Guest */
 btnGuest?.addEventListener("click", async () => {
   try {
     show("");
@@ -96,38 +93,39 @@ btnGuest?.addEventListener("click", async () => {
       photoURL: DEFAULT_AVATAR
     });
 
-    show("Đã vào với tư cách Khách! Đang chuyển...");
-    setTimeout(goDashboard, 600);
+    show("Đã vào với tư cách Khách! Đang vào Dashboard...");
+    setTimeout(() => {
+      window.location.hash = "#dashboard";
+    }, 350);
+
   } catch (err) {
-    show(err?.message || "Có lỗi vào Khách.", true);
+    show(err?.message || "Có lỗi xảy ra.", true);
   }
 });
 
-/* Đăng xuất (nếu có status) */
+/* Logout */
 btnLogout?.addEventListener("click", async () => {
   await signOut(auth);
   show("Đã đăng xuất.");
+  window.location.hash = "#register";
 });
 
-/* Trạng thái */
+/* Status demo */
 onAuthStateChanged(auth, (user) => {
+  if (!loggedOut || !loggedIn) return;
+
   if (!user) {
-    loggedOut?.classList.remove("hidden");
-    loggedIn?.classList.add("hidden");
+    loggedOut.classList.remove("hidden");
+    loggedIn.classList.add("hidden");
     return;
   }
 
-  loggedOut?.classList.add("hidden");
-  loggedIn?.classList.remove("hidden");
+  loggedOut.classList.add("hidden");
+  loggedIn.classList.remove("hidden");
 
   if (avatar) avatar.src = user.photoURL || DEFAULT_AVATAR;
   if (nameEl) nameEl.textContent = user.displayName || "User";
   if (userEmail) {
-    userEmail.textContent = user.isAnonymous
-      ? "Tài khoản Ẩn danh (Khách)"
-      : (user.email || "");
+    userEmail.textContent = user.isAnonymous ? "Tài khoản Ẩn danh (Khách)" : (user.email || "");
   }
-
-  // ✅ đã đăng nhập rồi => khỏi ở register nữa
-  setTimeout(goDashboard, 200);
 });
