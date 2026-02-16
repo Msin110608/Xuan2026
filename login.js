@@ -1,4 +1,7 @@
-const dashboard_html = "http://127.0.0.1:5500/test%20mode/dashboard.html";
+// login.js — sửa để: Email/Pass + Google => nhảy qua dashboard
+
+const DASHBOARD_URL = "./dashboard.html"; // ✅ đổi nếu dashboard ở folder khác
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import {
   getAuth,
@@ -9,7 +12,7 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
-/** DÁN firebaseConfig CỦA BẠN VÀO ĐÂY (GIỐNG register.js) */
+/** firebaseConfig */
 const firebaseConfig = {
   apiKey: "AIzaSyDfZPIg6Nif_Mx_Wwyl0byM6vJCd5BLgo8",
   authDomain: "xuanbinhngo-2026.firebaseapp.com",
@@ -41,45 +44,51 @@ const userEmail = $("userEmail");
 
 const DEFAULT_AVATAR = "https://api.dicebear.com/7.x/thumbs/svg?seed=Xuan12A1";
 
-function show(text, isError=false){
+function show(text, isError = false) {
+  if (!msg) return;
   msg.textContent = text || "";
   msg.classList.toggle("danger", isError);
 }
 
-/* Đăng nhập Email */
-btnLogin.addEventListener("click", async () => {
-  try{
-    show("");
-    const email = emailInput.value.trim();
-    const pass = passwordInput.value.trim();
+function goDashboard() {
+  // ✅ thay location.href để chạy tốt trên GitHub Pages
+  window.location.assign(DASHBOARD_URL);
+}
 
-    if(!email || !pass) return show("Vui lòng nhập email và mật khẩu.", true);
+/* Đăng nhập Email */
+btnLogin?.addEventListener("click", async () => {
+  try {
+    show("");
+    const email = (emailInput?.value || "").trim();
+    const pass = (passwordInput?.value || "").trim();
+
+    if (!email || !pass) return show("Vui lòng nhập email và mật khẩu.", true);
 
     await signInWithEmailAndPassword(auth, email, pass);
- show("Đăng nhập thành công! Đang chuyển...");
+    show("Đăng nhập thành công! Đang chuyển...");
 
-setTimeout(() => {
-  window.location.href = dashboard_html;
-}, 1000);
-
-  }catch(err){
-    show(err.message, true);
+    setTimeout(goDashboard, 600);
+  } catch (err) {
+    show(err?.message || "Có lỗi đăng nhập.", true);
   }
 });
 
 /* Google */
-btnGoogle.addEventListener("click", async () => {
-  try{
+btnGoogle?.addEventListener("click", async () => {
+  try {
     show("");
     const provider = new GoogleAuthProvider();
+
     await signInWithPopup(auth, provider);
-    show("Đăng nhập Google thành công!");
-  }catch(err){
-    show(err.message, true);
+    show("Đăng nhập Google thành công! Đang chuyển...");
+
+    setTimeout(goDashboard, 600);
+  } catch (err) {
+    show(err?.message || "Google đăng nhập lỗi.", true);
   }
 });
 
-/* Đăng xuất */
+/* Đăng xuất (phần status) */
 btnLogout?.addEventListener("click", async () => {
   await signOut(auth);
   show("Đã đăng xuất.");
@@ -87,22 +96,20 @@ btnLogout?.addEventListener("click", async () => {
 
 /* Trạng thái */
 onAuthStateChanged(auth, (user) => {
-  if(!user){
-    loggedOut.classList.remove("hidden");
-    loggedIn.classList.add("hidden");
+  if (!user) {
+    loggedOut?.classList.remove("hidden");
+    loggedIn?.classList.add("hidden");
     return;
   }
 
-  loggedOut.classList.add("hidden");
-  loggedIn.classList.remove("hidden");
+  loggedOut?.classList.add("hidden");
+  loggedIn?.classList.remove("hidden");
 
-  avatar.src = user.photoURL || DEFAULT_AVATAR;
-  nameEl.textContent = user.displayName || "User";
-  userEmail.textContent = user.email || "";
-});
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    window.location.href = MAIN_WEBSITE;
-  }
-});
+  if (avatar) avatar.src = user.photoURL || DEFAULT_AVATAR;
+  if (nameEl) nameEl.textContent = user.displayName || "User";
+  if (userEmail) userEmail.textContent = user.email || "";
 
+  // ✅ Nếu đang ở trang login mà đã login rồi -> đi dashboard luôn
+  // (tránh trường hợp F5 vẫn ở login)
+  setTimeout(goDashboard, 200);
+});
