@@ -1,4 +1,6 @@
-const dashboard_html = "http://127.0.0.1:5500/test%20mode/dashboard.html";
+// register.js — sửa để: Đăng ký + Khách => nhảy qua dashboard
+
+const DASHBOARD_URL = "./dashboard.html"; // ✅ đổi nếu dashboard ở folder khác
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import {
@@ -10,9 +12,7 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
-/* ===============================
-   FIREBASE CONFIG
-================================ */
+/* FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyDfZPIg6Nif_Mx_Wwyl0byM6vJCd5BLgo8",
   authDomain: "xuanbinhngo-2026.firebaseapp.com",
@@ -23,15 +23,9 @@ const firebaseConfig = {
   measurementId: "G-FN0BFL9FQQ"
 };
 
-/* ===============================
-   INIT FIREBASE
-================================ */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-/* ===============================
-   DOM ELEMENTS
-================================ */
 const $ = (id) => document.getElementById(id);
 
 const emailInput = $("email");
@@ -51,32 +45,27 @@ const userEmail = $("userEmail");
 
 const DEFAULT_AVATAR = "https://api.dicebear.com/7.x/thumbs/svg?seed=Xuan12A1";
 
-/* ===============================
-   HIỂN THỊ THÔNG BÁO
-================================ */
 function show(text, isError = false) {
   if (!msg) return;
   msg.textContent = text || "";
   msg.classList.toggle("danger", isError);
 }
 
-/* ===============================
-   ĐĂNG KÝ -> ĐI THẲNG DASHBOARD
-================================ */
+function goDashboard() {
+  window.location.assign(DASHBOARD_URL);
+}
+
+/* Đăng ký */
 btnRegister?.addEventListener("click", async () => {
   try {
     show("");
 
-    const email = emailInput?.value.trim();
-    const pass = passwordInput?.value.trim();
-    const name = nameInput?.value.trim();
+    const email = (emailInput?.value || "").trim();
+    const pass = (passwordInput?.value || "").trim();
+    const name = (nameInput?.value || "").trim();
 
-    if (!email || !pass) {
-      return show("Vui lòng nhập email và mật khẩu.", true);
-    }
-    if (pass.length < 6) {
-      return show("Mật khẩu tối thiểu 6 ký tự.", true);
-    }
+    if (!email || !pass) return show("Vui lòng nhập email và mật khẩu.", true);
+    if (pass.length < 6) return show("Mật khẩu tối thiểu 6 ký tự.", true);
 
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
 
@@ -85,28 +74,20 @@ btnRegister?.addEventListener("click", async () => {
       photoURL: DEFAULT_AVATAR
     });
 
-    show("Đăng ký thành công! Đang vào Dashboard...");
-
-    setTimeout(() => {
-      window.location.href = dashboard_html;
-    }, 900);
-
+    show("Đăng ký thành công! Đang chuyển...");
+    setTimeout(goDashboard, 600);
   } catch (err) {
-    show(err?.message || "Có lỗi xảy ra.", true);
+    show(err?.message || "Có lỗi đăng ký.", true);
   }
 });
 
-/* ===============================
-   KHÁCH -> ĐI THẲNG DASHBOARD
-================================ */
+/* Khách (phải nhập tên) */
 btnGuest?.addEventListener("click", async () => {
   try {
     show("");
 
-    const name = nameInput?.value.trim();
-    if (!name) {
-      return show("Bạn phải nhập Tên hiển thị để vào với tư cách Khách.", true);
-    }
+    const name = (nameInput?.value || "").trim();
+    if (!name) return show("Bạn phải nhập Tên hiển thị để vào với tư cách Khách.", true);
 
     const cred = await signInAnonymously(auth);
 
@@ -115,29 +96,20 @@ btnGuest?.addEventListener("click", async () => {
       photoURL: DEFAULT_AVATAR
     });
 
-    show("Đã vào với tư cách Khách! Đang vào Dashboard...");
-
-    setTimeout(() => {
-      window.location.href = dashboard_html;
-    }, 700);
-
+    show("Đã vào với tư cách Khách! Đang chuyển...");
+    setTimeout(goDashboard, 600);
   } catch (err) {
-    show(err?.message || "Có lỗi xảy ra.", true);
+    show(err?.message || "Có lỗi vào Khách.", true);
   }
 });
 
-/* ===============================
-   ĐĂNG XUẤT (nếu có phần status)
-================================ */
+/* Đăng xuất (nếu có status) */
 btnLogout?.addEventListener("click", async () => {
   await signOut(auth);
   show("Đã đăng xuất.");
 });
 
-/* ===============================
-   THEO DÕI TRẠNG THÁI
-   - Nếu đã login rồi mà vào trang Register -> đẩy luôn sang Dashboard
-================================ */
+/* Trạng thái */
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     loggedOut?.classList.remove("hidden");
@@ -156,7 +128,6 @@ onAuthStateChanged(auth, (user) => {
       : (user.email || "");
   }
 
-  // ✅ Nếu đã đăng nhập thì khỏi ở trang Register nữa
-  // (nếu bạn muốn vẫn cho ở lại để đổi tài khoản thì comment dòng dưới)
-  // window.location.href = dashboard_html;
+  // ✅ đã đăng nhập rồi => khỏi ở register nữa
+  setTimeout(goDashboard, 200);
 });
