@@ -3,96 +3,30 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Xuân 12A1 </title>
+  <title>Xuân 12A1</title>
 
   <style>
     /* =========================================================
        ✅ GIỮ NGUYÊN CSS (REGISTER + LOGIN + DASHBOARD) 
        ========================================================= */
 
-    /* =======================
-      TẾT FX: Cành mai + rơi hoa/tiền
-    ======================= */
+    .fx-layer{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50;}
+    .fx-branch{position:fixed;top:0;width:260px;height:100vh;pointer-events:none;z-index:40;opacity:.95;filter:drop-shadow(0 12px 18px rgba(0,0,0,.25));}
+    .fx-branch.left{left:-30px;transform:rotate(-2deg);}
+    .fx-branch.right{right:-30px;transform:scaleX(-1) rotate(-2deg);}
+    .fx-branch::before,.fx-branch::after{content:"";position:absolute;left:40px;top:-40px;width:18px;height:120%;border-radius:20px;background:linear-gradient(180deg, rgba(60,22,0,.92), rgba(120,60,0,.85));transform:rotate(12deg);}
+    .fx-branch::after{left:70px;width:10px;height:70%;opacity:.85;transform:rotate(26deg);}
+    .fx-blossoms{position:absolute;inset:0;}
+    .fx-blossoms span{position:absolute;font-size:22px;opacity:.9;filter:drop-shadow(0 6px 8px rgba(0,0,0,.25));}
 
-    .fx-layer{
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      overflow:hidden;
-      z-index:50;
-    }
-
-    .fx-branch{
-      position:fixed;
-      top:0;
-      width:260px;
-      height:100vh;
-      pointer-events:none;
-      z-index:40;
-      opacity:.95;
-      filter: drop-shadow(0 12px 18px rgba(0,0,0,.25));
-    }
-    .fx-branch.left{ left:-30px; transform:rotate(-2deg); }
-    .fx-branch.right{ right:-30px; transform:scaleX(-1) rotate(-2deg); }
-
-    .fx-branch::before,
-    .fx-branch::after{
-      content:"";
-      position:absolute;
-      left:40px;
-      top:-40px;
-      width:18px;
-      height:120%;
-      border-radius:20px;
-      background:linear-gradient(180deg, rgba(60,22,0,.92), rgba(120,60,0,.85));
-      transform:rotate(12deg);
-    }
-    .fx-branch::after{
-      left:70px;
-      width:10px;
-      height:70%;
-      opacity:.85;
-      transform:rotate(26deg);
-    }
-
-    .fx-blossoms{ position:absolute; inset:0; }
-    .fx-blossoms span{
-      position:absolute;
-      font-size:22px;
-      opacity:.9;
-      filter: drop-shadow(0 6px 8px rgba(0,0,0,.25));
-    }
-
-    .fall-item{
-      position:absolute;
-      top:-60px;
-      left:0;
-      will-change: transform;
-      user-select:none;
-      pointer-events:none;
-      opacity:.55;
-      filter: blur(.2px);
-      animation-name: fallDown;
-      animation-timing-function: linear;
-      animation-iteration-count: infinite;
-    }
-    .fall-flower{ opacity:.65; filter: drop-shadow(0 10px 12px rgba(0,0,0,.18)); }
-    .fall-coin{ opacity:.28; filter: blur(.4px) drop-shadow(0 10px 12px rgba(0,0,0,.10)); }
-
+    .fall-item{position:absolute;top:-60px;left:0;will-change:transform;user-select:none;pointer-events:none;opacity:.55;filter:blur(.2px);animation-name:fallDown;animation-timing-function:linear;animation-iteration-count:infinite;}
+    .fall-flower{opacity:.65;filter:drop-shadow(0 10px 12px rgba(0,0,0,.18));}
+    .fall-coin{opacity:.28;filter:blur(.4px) drop-shadow(0 10px 12px rgba(0,0,0,.10));}
     @keyframes fallDown{
-      0%{ transform: translate3d(var(--x,0px), -80px, 0) rotate(0deg); }
-      100%{
-        transform: translate3d(
-          calc(var(--x,0px) + var(--drift,120px)),
-          calc(100vh + 120px),
-          0
-        ) rotate(var(--rot,540deg));
-      }
+      0%{transform:translate3d(var(--x,0px), -80px, 0) rotate(0deg);}
+      100%{transform:translate3d(calc(var(--x,0px) + var(--drift,120px)), calc(100vh + 120px), 0) rotate(var(--rot,540deg));}
     }
 
-    /* =======================
-      NÚT: hover + click zoom + viền sáng
-    ======================= */
     button{
       position:relative;
       transition: transform .14s ease, box-shadow .14s ease, outline-color .14s ease, filter .14s ease;
@@ -107,15 +41,10 @@
     button.btn-active{
       transform: translateY(-2px) scale(1.08);
       outline-color: rgba(255,215,0,.95);
-      box-shadow:
-        0 18px 40px rgba(0,0,0,.35),
-        0 0 0 6px rgba(255,215,0,.18);
+      box-shadow: 0 18px 40px rgba(0,0,0,.35), 0 0 0 6px rgba(255,215,0,.18);
       filter: saturate(1.05);
     }
 
-    /* =======================
-      THEME (REGISTER + LOGIN)
-    ======================= */
     :root{
       --line:rgba(255,255,255,.18);
       --text:#fff3f7;
@@ -127,21 +56,17 @@
     }
 
     *{box-sizing:border-box}
-
     body{
       margin:0;
       font-family:"Times New Roman", Times, serif;
-
       background: url("bg-2026.jpg") no-repeat center center fixed;
       background-size: 100%;
       background-position: center 30%;
-
       color:var(--text);
       min-height:100vh;
       padding:26px;
       position:relative;
     }
-
     body::before{
       content:"";
       position:fixed;
@@ -156,18 +81,10 @@
       font-size:38px; z-index:999;
       animation: floatLogo 3s ease-in-out infinite;
     }
-    @keyframes floatLogo{
-      0%{transform:translateY(0px);}
-      50%{transform:translateY(-6px);}
-      100%{transform:translateY(0px);}
-    }
+    @keyframes floatLogo{0%{transform:translateY(0px);}50%{transform:translateY(-6px);}100%{transform:translateY(0px);}}
 
-    .logo-watermark{
-      position:absolute; top:10px; right:20px;
-      font-size:60px; opacity:.08; pointer-events:none;
-    }
+    .logo-watermark{position:absolute; top:10px; right:20px;font-size:60px;opacity:.08;pointer-events:none;}
 
-    /* REGISTER/LOGIN LAYOUT */
     .container{
       width:min(1050px,100%);
       display:grid;
@@ -189,29 +106,11 @@
       z-index:60;
     }
 
-    h1{
-      margin:0;
-      font-size:42px;
-      font-weight:900;
-      color:var(--gold);
-      text-align:center;
-      letter-spacing:1px;
-    }
-    .sub{
-      text-align:center;
-      color:var(--muted);
-      margin:10px 0 18px;
-      font-size:18px;
-    }
+    h1{margin:0;font-size:42px;font-weight:900;color:var(--gold);text-align:center;letter-spacing:1px;}
+    .sub{text-align:center;color:var(--muted);margin:10px 0 18px;font-size:18px;}
 
     label{display:block;margin-top:14px}
-    label span{
-      display:block;
-      font-size:18px;
-      margin-bottom:8px;
-      color:var(--muted);
-      font-weight:700;
-    }
+    label span{display:block;font-size:18px;margin-bottom:8px;color:var(--muted);font-weight:700;}
 
     input{
       width:100%;
@@ -226,152 +125,51 @@
     }
     input::placeholder{color:#ffd1e3}
 
-    .row{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-top:18px;
-    }
-
-    button{
-      border:0;
-      border-radius:16px;
-      padding:12px 18px;
-      font-weight:900;
-      cursor:pointer;
-      font-size:18px;
-      font-family:"Times New Roman", Times, serif;
-    }
-
+    .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;}
+    button{border:0;border-radius:16px;padding:12px 18px;font-weight:900;cursor:pointer;font-size:18px;font-family:"Times New Roman", Times, serif;}
     .btn{background:var(--btn); color:#7a0000;}
     .btn.secondary{background:var(--btn2); color:var(--text); border:1px solid var(--line)}
     .btn.guest{background:rgba(255,255,255,.14); color:var(--text); border:1px solid var(--gold)}
     .btn.google{background:#fff; color:#7a0000;}
 
-    .msg{
-      margin-top:12px;
-      font-size:16px;
-      color:var(--muted);
-      line-height:1.4;
-      min-height:22px;
-    }
+    .msg{margin-top:12px;font-size:16px;color:var(--muted);line-height:1.4;min-height:22px;}
     .danger{color:#ffd0d0}
+    .hint{margin-top:10px;font-size:15px;color:var(--muted);}
+    .title2{margin:0;color:var(--gold);font-size:28px;font-weight:900;}
 
-    .hint{
-      margin-top:10px;
-      font-size:15px;
-      color:var(--muted);
-    }
+    .login-link{margin-top:12px;text-align:center;}
+    .login-link a{color:#0b1bff;font-weight:900;text-decoration:underline;cursor:pointer;}
 
-    .title2{
-      margin:0;
-      color:var(--gold);
-      font-size:28px;
-      font-weight:900;
-    }
-
-    .login-link{
-      margin-top:12px;
-      text-align:center;
-    }
-    .login-link a{
-      color:#0b1bff;
-      font-weight:900;
-      text-decoration:underline;
-      cursor:pointer;
-    }
-
-    .profile{
-      display:flex;
-      gap:14px;
-      align-items:center;
-      padding:14px;
-      border:2px solid var(--gold);
-      border-radius:18px;
-      margin-top:14px;
-      background:rgba(255,255,255,.08);
-    }
-    .avatar{
-      width:64px; height:64px;
-      border-radius:50%;
-      border:3px solid var(--gold);
-      object-fit:cover;
-    }
-    .name{font-weight:900;color:var(--gold); font-size:22px}
+    .profile{display:flex;gap:14px;align-items:center;padding:14px;border:2px solid var(--gold);border-radius:18px;margin-top:14px;background:rgba(255,255,255,.08);}
+    .avatar{width:64px;height:64px;border-radius:50%;border:3px solid var(--gold);object-fit:cover;}
+    .name{font-weight:900;color:var(--gold);font-size:22px}
     .email{font-size:16px;color:var(--muted)}
     .hidden{display:none !important}
 
-    /* =======================
-       DASHBOARD CSS (GIỮ NGUYÊN)
-    ======================= */
-    .dash-body{
-      background-position: 70% 35%;
-    }
     .wrap{
-      position:relative;
-      z-index:2;
-      width:min(1100px,100%);
-      margin:0 auto;
-      display:grid;
-      grid-template-columns: 360px 1fr;
-      gap:18px;
+      position:relative;z-index:2;width:min(1100px,100%);
+      margin:0 auto;display:grid;grid-template-columns:360px 1fr;gap:18px;
     }
     @media (max-width:900px){ .wrap{grid-template-columns:1fr} }
-
     h1,h2{margin:0;color:var(--gold);font-weight:900}
     h2{font-size:22px;margin-bottom:10px}
     .muted{color:var(--muted)}
     .spacer{height:12px}
 
-    .avatarBox{
-      display:flex; gap:14px; align-items:center;
-      padding:14px;
-      border:2px solid var(--gold);
-      border-radius:18px;
-      background:rgba(255,255,255,.08);
-    }
-    .avatarBig{
-      width:86px; height:86px;
-      border-radius:50%;
-      border:3px solid var(--gold);
-      object-fit:cover;
-      background:rgba(255,255,255,.15);
-    }
-    .emailSmall{
-      font-size:13px;
-      color:var(--muted);
-      opacity:.95;
-      max-width:210px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
+    .avatarBox{display:flex;gap:14px;align-items:center;padding:14px;border:2px solid var(--gold);border-radius:18px;background:rgba(255,255,255,.08);}
+    .avatarBig{width:86px;height:86px;border-radius:50%;border:3px solid var(--gold);object-fit:cover;background:rgba(255,255,255,.15);}
+    .emailSmall{font-size:13px;color:var(--muted);opacity:.95;max-width:210px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     @media (max-width:900px){ .emailSmall{max-width:100%;} }
 
     textarea{
-      width:100%;
-      padding:12px 14px;
-      border-radius:16px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.12);
-      color:var(--text);
-      outline:none;
-      font-size:18px;
-      font-family:"Times New Roman", Times, serif;
-      min-height:120px;
-      resize:vertical;
+      width:100%;padding:12px 14px;border-radius:16px;border:1px solid var(--line);
+      background:rgba(255,255,255,.12);color:var(--text);outline:none;font-size:18px;
+      font-family:"Times New Roman", Times, serif;min-height:120px;resize:vertical;
     }
 
     .btnDash{
-      border:0;
-      border-radius:16px;
-      padding:12px 16px;
-      font-weight:900;
-      cursor:pointer;
-      font-size:18px;
-      font-family:"Times New Roman", Times, serif;
-      outline:2px solid transparent;
-      outline-offset:3px;
+      border:0;border-radius:16px;padding:12px 16px;font-weight:900;cursor:pointer;
+      font-size:18px;font-family:"Times New Roman", Times, serif;outline:2px solid transparent;outline-offset:3px;
       transition: transform .14s ease, box-shadow .14s ease, outline-color .14s ease;
     }
     .btnDash:hover{
@@ -380,111 +178,29 @@
       outline-color: rgba(255,215,0,.55);
     }
 
-    .stats{
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap:12px;
-      margin-top:12px;
-    }
-    .stat{
-      background:rgba(255,255,255,.09);
-      border:1px solid rgba(255,215,0,.35);
-      border-radius:18px;
-      padding:12px;
-    }
-    .stat .k{color:var(--muted); font-weight:900}
-    .stat .v{font-size:26px; font-weight:900; color:var(--gold); margin-top:4px}
+    .stats{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:12px;margin-top:12px;}
+    .stat{background:rgba(255,255,255,.09);border:1px solid rgba(255,215,0,.35);border-radius:18px;padding:12px;}
+    .stat .k{color:var(--muted);font-weight:900}
+    .stat .v{font-size:26px;font-weight:900;color:var(--gold);margin-top:4px}
 
-    .notifItem{
-      padding:12px;
-      border-radius:16px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.14);
-      margin-top:10px;
-    }
+    .notifItem{padding:12px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);margin-top:10px;}
     .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:18px;
-      position:relative;
-      z-index:2;
-      width:min(1100px,100%);
-      margin:0 auto 18px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      position:relative;z-index:2;width:min(1100px,100%);margin:0 auto 18px;
     }
 
-    /* =======================
-       MODAL CROP AVATAR (GIỮ NGUYÊN)
-    ======================= */
-    .modal{
-      position:fixed;
-      inset:0;
-      display:none;
-      place-items:center;
-      background:rgba(0,0,0,.55);
-      z-index:9999;
-      padding:18px;
-    }
+    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.55);z-index:9999;padding:18px;}
     .modal.show{display:grid;}
-    .modalCard{
-      width:min(680px,100%);
-      background: linear-gradient(180deg, rgba(179,0,59,.96), rgba(139,0,0,.96));
-      border:3px solid var(--gold);
-      border-radius:22px;
-      padding:16px;
-      box-shadow:0 18px 55px rgba(0,0,0,.55);
-    }
-    .modalTop{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      margin-bottom:10px;
-    }
-    .cropWrap{
-      display:grid;
-      grid-template-columns: 1fr 220px;
-      gap:14px;
-      align-items:start;
-    }
+    .modalCard{width:min(680px,100%);background:linear-gradient(180deg, rgba(179,0,59,.96), rgba(139,0,0,.96));border:3px solid var(--gold);border-radius:22px;padding:16px;box-shadow:0 18px 55px rgba(0,0,0,.55);}
+    .modalTop{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;}
+    .cropWrap{display:grid;grid-template-columns:1fr 220px;gap:14px;align-items:start;}
     @media (max-width:800px){ .cropWrap{grid-template-columns:1fr;} }
-    .cropStage{
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,215,0,.25);
-      border-radius:18px;
-      padding:12px;
-    }
-    .cropCanvas{
-      width:100%;
-      aspect-ratio: 1 / 1;
-      background:rgba(255,255,255,.06);
-      border-radius:16px;
-      border:1px dashed rgba(255,215,0,.35);
-      display:block;
-      touch-action:none;
-      cursor:grab;
-    }
-    .sideBox{
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,215,0,.25);
-      border-radius:18px;
-      padding:12px;
-    }
-    .preview{
-      width:140px;height:140px;
-      border-radius:50%;
-      border:3px solid var(--gold);
-      object-fit:cover;
-      background:rgba(255,255,255,.12);
-      display:block;
-      margin:0 auto 10px;
-    }
+    .cropStage{background:rgba(255,255,255,.06);border:1px solid rgba(255,215,0,.25);border-radius:18px;padding:12px;}
+    .cropCanvas{width:100%;aspect-ratio:1/1;background:rgba(255,255,255,.06);border-radius:16px;border:1px dashed rgba(255,215,0,.35);display:block;touch-action:none;cursor:grab;}
+    .sideBox{background:rgba(255,255,255,.06);border:1px solid rgba(255,215,0,.25);border-radius:18px;padding:12px;}
+    .preview{width:140px;height:140px;border-radius:50%;border:3px solid var(--gold);object-fit:cover;background:rgba(255,255,255,.12);display:block;margin:0 auto 10px;}
     .range{width:100%}
 
-    /* =======================
-       ✅ VIEW SWITCH (CHỈ ĐỂ GỘP 1 FILE)
-       ======================= */
     .view{display:none}
     .view.active{display:block}
   </style>
@@ -493,9 +209,7 @@
 <body>
   <div class="web-logo">🌸</div>
 
-  <!-- =======================
-       REGISTER VIEW (GIỮ NGUYÊN)
-  ======================= -->
+  <!-- REGISTER VIEW -->
   <section id="viewRegister" class="view active">
     <div class="container">
       <section class="card">
@@ -549,18 +263,14 @@
           </div>
 
           <div class="row">
-            <button id="btnLogout" class="btn secondary">Đăng xuất</button>
+            <button id="btnLogout" class="btn secondary" type="button">Đăng xuất</button>
           </div>
         </div>
       </section>
     </div>
-
-    <script type="module" src="register.js"></script>
   </section>
 
-  <!-- =======================
-       LOGIN VIEW (GIỮ NGUYÊN)
-  ======================= -->
+  <!-- LOGIN VIEW -->
   <section id="viewLogin" class="view">
     <div class="container">
       <section class="card">
@@ -580,8 +290,8 @@
         </label>
 
         <div class="row">
-          <button id="btnLogin" class="btn">Đăng nhập</button>
-          <button id="btnGoogle" class="btn google">Google</button>
+          <button id="btnLogin" class="btn" type="button">Đăng nhập</button>
+          <button id="btnGoogle" class="btn google" type="button">Google</button>
         </div>
 
         <div id="msg2" class="msg"></div>
@@ -609,24 +319,20 @@
           </div>
 
           <div class="row">
-            <button id="btnLogout2" class="btn secondary">Đăng xuất</button>
+            <button id="btnLogout2" class="btn secondary" type="button">Đăng xuất</button>
           </div>
         </div>
       </section>
     </div>
-
-    <script type="module" src="login.js"></script>
   </section>
 
-  <!-- =======================
-       DASHBOARD VIEW (GIỮ NGUYÊN)
-  ======================= -->
+  <!-- DASHBOARD VIEW -->
   <section id="viewDashboard" class="view">
     <div class="topbar">
-      <h1>🎊 Thông tin người dùng </h1>
+      <h1>🎊 Thông tin người dùng</h1>
       <div class="row">
-        <button id="btnHome" class="btnDash btn">Trang chủ</button>
-        <button id="btnLogoutDash" class="btnDash btn secondary">Đăng xuất</button>
+        <button id="btnHome" class="btnDash btn" type="button">Trang chủ</button>
+        <button id="btnLogoutDash" class="btnDash btn secondary" type="button">Đăng xuất</button>
       </div>
     </div>
 
@@ -653,8 +359,8 @@
         </label>
 
         <div class="row" style="margin-top:12px;">
-          <button id="btnSaveProfile" class="btnDash btn">Lưu hồ sơ</button>
-          <button id="btnResetAvatar" class="btnDash btn secondary">Avatar mặc định</button>
+          <button id="btnSaveProfile" class="btnDash btn" type="button">Lưu hồ sơ</button>
+          <button id="btnResetAvatar" class="btnDash btn secondary" type="button">Avatar mặc định</button>
         </div>
 
         <div id="msgDash" class="muted" style="margin-top:12px; min-height:22px;"></div>
@@ -694,24 +400,18 @@
           <input id="notifText" placeholder="VD: 20h tối nay chơi lô tô phòng 12A1!">
         </label>
         <div class="row" style="margin-top:12px;">
-          <button id="btnAddNotif" class="btnDash btn">Đăng thông báo</button>
-          <button id="btnClearNotif" class="btnDash btn secondary">Xóa hết</button>
+          <button id="btnAddNotif" class="btnDash btn" type="button">Đăng thông báo</button>
+          <button id="btnClearNotif" class="btnDash btn secondary" type="button">Xóa hết</button>
         </div>
       </section>
     </div>
-    <!-- Khu user trên navbar -->
-<div class="nav-user">
-  <div class="nav-user__meta">
-    <div id="navName" class="nav-user__name">—</div>
-    <div id="navEmail" class="nav-user__email">—</div>
-  </div>
-  <button id="btnNavLogout" class="btn secondary" type="button">Đăng xuất</button>
-</div>
+
+    <!-- MODAL CROP (giữ nguyên HTML) -->
     <div id="cropModal" class="modal" aria-hidden="true">
       <div class="modalCard">
         <div class="modalTop">
           <h2 style="margin:0;">Cắt ảnh Avatar</h2>
-          <button id="btnCropClose" class="btnDash btn secondary">Đóng</button>
+          <button id="btnCropClose" class="btnDash btn secondary" type="button">Đóng</button>
         </div>
 
         <div class="cropWrap">
@@ -730,8 +430,8 @@
             </label>
 
             <div class="row" style="margin-top:12px;">
-              <button id="btnCropApply" class="btnDash btn">Dùng ảnh này</button>
-              <button id="btnCropReset" class="btnDash btn secondary">Reset</button>
+              <button id="btnCropApply" class="btnDash btn" type="button">Dùng ảnh này</button>
+              <button id="btnCropReset" class="btnDash btn secondary" type="button">Reset</button>
             </div>
 
             <div class="muted" style="margin-top:10px;font-size:14px;">
@@ -741,16 +441,95 @@
         </div>
       </div>
     </div>
-
-    <script type="module" src="dashboard.js"></script>
   </section>
 
-  <!-- FX giữ nguyên -->
-  <script type="module" src="fx.js"></script>
+  <!-- ✅ FX chỉ 1 lần -->
+  <script>
+    // fx.js inline (y như bạn)
+    function createEl(tag, className) { const el = document.createElement(tag); if (className) el.className = className; return el; }
+    function rand(min, max) { return Math.random() * (max - min) + min; }
 
-  <!-- =======================
-       ✅ CHỈ THÊM SWITCH VIEW (KHÔNG ĐỘNG VÀO NỘI DUNG BẠN)
-       ======================= -->
+    function setupBranches() {
+      const left = createEl("div", "fx-branch left");
+      const right = createEl("div", "fx-branch right");
+      const bloomsL = createEl("div", "fx-blossoms");
+      const bloomsR = createEl("div", "fx-blossoms");
+      const blossomCount = 14;
+
+      for (let i = 0; i < blossomCount; i++) {
+        const b1 = createEl("span");
+        b1.textContent = "🌼";
+        b1.style.left = `${rand(40, 200)}px`;
+        b1.style.top = `${rand(40, 560)}px`;
+        b1.style.transform = `rotate(${rand(-30, 30)}deg)`;
+        b1.style.opacity = `${rand(0.65, 0.95)}`;
+        bloomsL.appendChild(b1);
+
+        const b2 = createEl("span");
+        b2.textContent = "🌼";
+        b2.style.left = `${rand(40, 200)}px`;
+        b2.style.top = `${rand(40, 560)}px`;
+        b2.style.transform = `rotate(${rand(-30, 30)}deg)`;
+        b2.style.opacity = `${rand(0.65, 0.95)}`;
+        bloomsR.appendChild(b2);
+      }
+
+      left.appendChild(bloomsL);
+      right.appendChild(bloomsR);
+      document.body.appendChild(left);
+      document.body.appendChild(right);
+    }
+
+    function setupFallingFX() {
+      const layer = createEl("div", "fx-layer");
+      layer.id = "fx-layer";
+      document.body.appendChild(layer);
+
+      const makeItem = (type) => {
+        const s = createEl("span", `fall-item ${type === "flower" ? "fall-flower" : "fall-coin"}`);
+        s.textContent = type === "flower" ? "🌸" : "🪙";
+
+        const size = type === "flower" ? rand(14, 24) : rand(16, 30);
+        s.style.fontSize = `${size}px`;
+
+        const left = rand(0, window.innerWidth);
+        s.style.left = `${left}px`;
+
+        const duration = type === "flower" ? rand(7.5, 13) : rand(9, 16);
+        s.style.animationDuration = `${duration}s`;
+
+        const delay = rand(0, 6);
+        s.style.animationDelay = `${delay}s`;
+
+        s.style.setProperty("--x", `${rand(-60, 60)}px`);
+        s.style.setProperty("--drift", `${rand(-160, 160)}px`);
+        s.style.setProperty("--rot", `${rand(240, 900)}deg`);
+
+        layer.appendChild(s);
+      };
+
+      for (let i = 0; i < 26; i++) makeItem("flower");
+      for (let i = 0; i < 10; i++) makeItem("coin");
+    }
+
+    function setupButtonFX() {
+      const ids = ["btnLogin", "btnRegister", "btnGoogle", "btnGuest", "btnLogout", "btnLogout2", "btnLogoutDash"];
+      ids.forEach((id) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        btn.addEventListener("click", () => {
+          btn.classList.add("btn-active");
+          setTimeout(() => btn.classList.remove("btn-active"), 260);
+        });
+      });
+    }
+
+    setupBranches();
+    setupFallingFX();
+    setupButtonFX();
+  </script>
+
+  <!-- ✅ SWITCH VIEW (1 nơi duy nhất) -->
   <script>
     const viewRegister = document.getElementById("viewRegister");
     const viewLogin = document.getElementById("viewLogin");
@@ -759,51 +538,320 @@
     const goLogin = document.getElementById("goLogin");
     const goRegister = document.getElementById("goRegister");
 
-    function showView(v){
-      [viewRegister, viewLogin, viewDashboard].forEach(x => x.classList.remove("active"));
-      v.classList.add("active");
+    function showView(which){
+      [viewRegister, viewLogin, viewDashboard].forEach(v => v.classList.remove("active"));
+      if(which === "register") viewRegister.classList.add("active");
+      if(which === "login") viewLogin.classList.add("active");
+      if(which === "dashboard") viewDashboard.classList.add("active");
       window.scrollTo({top:0, behavior:"smooth"});
     }
 
-    if(goLogin) goLogin.addEventListener("click", ()=> showView(viewLogin));
-    if(goRegister) goRegister.addEventListener("click", ()=> showView(viewRegister));
-
-    // dashboard "Trang chủ" quay về register (đúng tinh thần file bạn)
-    const btnHome = document.getElementById("btnHome");
-    if(btnHome) btnHome.addEventListener("click", ()=> showView(viewRegister));
-
-    // nút logout ở dashboard chỉ chuyển view (JS của bạn vẫn có thể xử lý logout thật)
-    const btnLogoutDash = document.getElementById("btnLogoutDash");
-    if(btnLogoutDash) btnLogoutDash.addEventListener("click", ()=> showView(viewLogin));
+    goLogin?.addEventListener("click", ()=> showView("login"));
+    goRegister?.addEventListener("click", ()=> showView("register"));
+    document.getElementById("btnHome")?.addEventListener("click", ()=> showView("register"));
   </script>
-  <script type="module" src="fx.js"></script>
 
-<script type="module" src="router.js"></script>
-<script type="module" src="login.js"></script>
-<script type="module" src="register.js"></script>
-<script type="module" src="dashboard.js"></script>
+  <!-- ✅ ALL-IN-ONE FIREBASE JS (1 lần duy nhất) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signInWithPopup,
+      GoogleAuthProvider,
+      signInAnonymously,
+      updateProfile,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
-</body>
-  <body>
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      updateDoc,
+      serverTimestamp,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-  <!-- LOGIN VIEW -->
-  <section id="view-login">
-    <!-- DÁN NGUYÊN KHỐI LOGIN HTML CỦA BẠN VÀO ĐÂY -->
-  </section>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDfZPIg6Nif_Mx_Wwyl0byM6vJCd5BLgo8",
+      authDomain: "xuanbinhngo-2026.firebaseapp.com",
+      projectId: "xuanbinhngo-2026",
+      storageBucket: "xuanbinhngo-2026.appspot.com",
+      messagingSenderId: "910448630867",
+      appId: "1:910448630867:web:2b48e0b859e355aa0efaa6",
+      measurementId: "G-FN0BFL9FQQ"
+    };
 
-  <!-- REGISTER VIEW -->
-  <section id="view-register" class="hidden">
-    <!-- DÁN NGUYÊN KHỐI REGISTER HTML CỦA BẠN VÀO ĐÂY -->
-  </section>
+    const DEFAULT_AVATAR = "https://api.dicebear.com/7.x/thumbs/svg?seed=Xuan12A1";
 
-  <!-- DASHBOARD VIEW -->
-  <section id="view-dashboard" class="hidden">
-    <!-- DÁN NGUYÊN KHỐI DASHBOARD HTML CỦA BẠN VÀO ĐÂY -->
-  </section>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
+    // ===== Helpers =====
+    function setText(id, text){
+      const el = document.getElementById(id);
+      if(el) el.textContent = text ?? "";
+    }
+    function showMsg(id, text, isErr=false){
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.textContent = text || "";
+      el.classList.toggle("danger", !!isErr);
+    }
+
+    async function ensureUserDoc(user) {
+      const refUser = doc(db, "users", user.uid);
+      const snap = await getDoc(refUser);
+      if (!snap.exists()) {
+        await setDoc(refUser, {
+          uid: user.uid,
+          displayName: user.displayName || "User",
+          avatarBase64: "",
+          photoURL: user.photoURL || DEFAULT_AVATAR,
+          coins: 0,
+          interactions: 0,
+          achievement: "",
+          notifications: [],
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      }
+      return refUser;
+    }
+
+    function renderNotifs(items = []) {
+      const notifList = document.getElementById("notifList");
+      if (!notifList) return;
+      notifList.innerHTML = "";
+      if (!items.length) {
+        notifList.innerHTML = `<div class="muted">Chưa có thông báo nào.</div>`;
+        return;
+      }
+      items.slice(0, 10).forEach((n) => {
+        const div = document.createElement("div");
+        div.className = "notifItem";
+        div.innerHTML = `
+          <div style="font-weight:900;color:var(--gold)">${n.title || "📢 Thông báo"}</div>
+          <div class="muted" style="margin-top:6px">${n.text || ""}</div>
+        `;
+        notifList.appendChild(div);
+      });
+    }
+
+    // ===== Register =====
+    document.getElementById("btnRegister")?.addEventListener("click", async () => {
+      try{
+        showMsg("msg", "");
+        const email = document.getElementById("email")?.value?.trim();
+        const pass = document.getElementById("password")?.value?.trim();
+        const name = document.getElementById("displayName")?.value?.trim();
+
+        if(!email || !pass) return showMsg("msg", "Vui lòng nhập email và mật khẩu.", true);
+        if(pass.length < 6) return showMsg("msg", "Mật khẩu tối thiểu 6 ký tự.", true);
+
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        await updateProfile(cred.user, { displayName: name || "User", photoURL: DEFAULT_AVATAR });
+        showMsg("msg", "Đăng ký thành công! Đang vào Dashboard...");
+      }catch(e){
+        showMsg("msg", e?.message || "Lỗi đăng ký", true);
+      }
+    });
+
+    document.getElementById("btnGuest")?.addEventListener("click", async () => {
+      try{
+        showMsg("msg", "");
+        const name = document.getElementById("displayName")?.value?.trim();
+        if(!name) return showMsg("msg", "Bạn phải nhập Tên hiển thị để vào với tư cách Khách.", true);
+
+        const cred = await signInAnonymously(auth);
+        await updateProfile(cred.user, { displayName: `${name} (Khách)`, photoURL: DEFAULT_AVATAR });
+        showMsg("msg", "Đã vào với tư cách Khách! Đang vào Dashboard...");
+      }catch(e){
+        showMsg("msg", e?.message || "Lỗi vào khách", true);
+      }
+    });
+
+    // ===== Login =====
+    document.getElementById("btnLogin")?.addEventListener("click", async () => {
+      try{
+        showMsg("msg2", "");
+        const email = document.getElementById("email2")?.value?.trim();
+        const pass = document.getElementById("password2")?.value?.trim();
+        if(!email || !pass) return showMsg("msg2", "Vui lòng nhập email và mật khẩu.", true);
+
+        await signInWithEmailAndPassword(auth, email, pass);
+        showMsg("msg2", "Đăng nhập thành công! Đang vào Dashboard...");
+      }catch(e){
+        showMsg("msg2", e?.message || "Lỗi đăng nhập", true);
+      }
+    });
+
+    document.getElementById("btnGoogle")?.addEventListener("click", async () => {
+      try{
+        showMsg("msg2", "");
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+        showMsg("msg2", "Đăng nhập Google thành công! Đang vào Dashboard...");
+      }catch(e){
+        showMsg("msg2", e?.message || "Lỗi Google", true);
+      }
+    });
+
+    // ===== Logout buttons =====
+    document.getElementById("btnLogout")?.addEventListener("click", async ()=> { await signOut(auth); });
+    document.getElementById("btnLogout2")?.addEventListener("click", async ()=> { await signOut(auth); });
+    document.getElementById("btnLogoutDash")?.addEventListener("click", async ()=> { await signOut(auth); });
+
+    // ===== Dashboard actions =====
+    let unsub = null;
+    let croppedBase64 = null;
+
+    document.getElementById("avatarFile")?.addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if(!file) return;
+      if(!file.type.startsWith("image/")) return showMsg("msgDash", "File không phải hình ảnh.", true);
+      if(file.size > 3 * 1024 * 1024) return showMsg("msgDash", "Ảnh quá lớn (tối đa ~3MB).", true);
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        croppedBase64 = reader.result;
+        const img = document.getElementById("avatarDash");
+        if(img) img.src = croppedBase64;
+        showMsg("msgDash", "Đã chọn avatar mới (chưa lưu). Bấm 'Lưu hồ sơ' để cập nhật.");
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById("btnSaveProfile")?.addEventListener("click", async () => {
+      try{
+        showMsg("msgDash", "");
+        const u = auth.currentUser;
+        if(!u) return;
+
+        const newName = (document.getElementById("displayNameDash")?.value || "").trim() || "User";
+        const refUser = doc(db, "users", u.uid);
+
+        await updateProfile(u, { displayName: newName }); // ✅ không nhét base64 vào photoURL
+
+        await updateDoc(refUser, {
+          displayName: newName,
+          avatarBase64: croppedBase64 || "",
+          photoURL: croppedBase64 ? "" : (u.photoURL || DEFAULT_AVATAR),
+          updatedAt: serverTimestamp()
+        });
+
+        showMsg("msgDash", "Đã lưu hồ sơ!");
+        croppedBase64 = null;
+        const f = document.getElementById("avatarFile");
+        if(f) f.value = "";
+      }catch(e){
+        showMsg("msgDash", e?.message || "Lỗi lưu hồ sơ", true);
+      }
+    });
+
+    document.getElementById("btnResetAvatar")?.addEventListener("click", async () => {
+      try{
+        const u = auth.currentUser;
+        if(!u) return;
+        const refUser = doc(db, "users", u.uid);
+        await updateDoc(refUser, { avatarBase64:"", photoURL: DEFAULT_AVATAR, updatedAt: serverTimestamp() });
+        const img = document.getElementById("avatarDash");
+        if(img) img.src = DEFAULT_AVATAR;
+        showMsg("msgDash", "Đã đặt avatar mặc định.");
+      }catch(e){
+        showMsg("msgDash", e?.message || "Lỗi reset avatar", true);
+      }
+    });
+
+    document.getElementById("btnAddNotif")?.addEventListener("click", async () => {
+      try{
+        showMsg("msgDash", "");
+        const u = auth.currentUser;
+        if(!u) return;
+
+        const text = (document.getElementById("notifText")?.value || "").trim();
+        if(!text) return showMsg("msgDash", "Nhập nội dung thông báo trước nhé.", true);
+
+        const refUser = doc(db, "users", u.uid);
+        const snap = await getDoc(refUser);
+        const data = snap.data() || {};
+        const arr = Array.isArray(data.notifications) ? data.notifications : [];
+        const next = [{ title:"📢 Thông báo", text, ts: Date.now() }, ...arr].slice(0, 15);
+
+        await updateDoc(refUser, { notifications: next, updatedAt: serverTimestamp() });
+        document.getElementById("notifText").value = "";
+        showMsg("msgDash", "Đã đăng thông báo!");
+      }catch(e){
+        showMsg("msgDash", e?.message || "Lỗi thông báo", true);
+      }
+    });
+
+    document.getElementById("btnClearNotif")?.addEventListener("click", async () => {
+      const u = auth.currentUser;
+      if(!u) return;
+      const refUser = doc(db, "users", u.uid);
+      await updateDoc(refUser, { notifications: [], updatedAt: serverTimestamp() });
+      showMsg("msgDash", "Đã xóa tất cả thông báo.");
+    });
+
+    // ===== Core: Auth state -> chuyển dashboard ngay =====
+    onAuthStateChanged(auth, async (user) => {
+      if (unsub) { unsub(); unsub = null; }
+
+      if (!user) {
+        // chưa login => về login (hoặc register tùy bạn)
+        showView("login");
+        return;
+      }
+
+      // đã login => dashboard
+      showView("dashboard");
+
+      // update mini status ở Register/Login (nếu bạn muốn)
+      const avt = user.photoURL || DEFAULT_AVATAR;
+      const nm = user.displayName || "User";
+      const em = user.email || (user.isAnonymous ? "Tài khoản Khách" : "—");
+
+      // Register status
+      const a1 = document.getElementById("avatar"); if(a1) a1.src = avt;
+      setText("name", nm);
+      setText("userEmail", em);
+
+      // Login status
+      const a2 = document.getElementById("avatar2"); if(a2) a2.src = avt;
+      setText("name2", nm);
+      setText("userEmail2", em);
+
+      // Dashboard header
+      const aD = document.getElementById("avatarDash"); if(aD) aD.src = avt;
+      setText("nameDash", nm);
+      setText("emailDash", em);
+      const inp = document.getElementById("displayNameDash"); if(inp) inp.value = nm;
+
+      const refUser = await ensureUserDoc(user);
+
+      unsub = onSnapshot(refUser, (snap) => {
+        const data = snap.data() || {};
+        const avatarFinal = data.avatarBase64 || data.photoURL || user.photoURL || DEFAULT_AVATAR;
+
+        const img = document.getElementById("avatarDash");
+        if(img) img.src = avatarFinal;
+
+        setText("nameDash", data.displayName || nm);
+        setText("coins", data.coins ?? 0);
+        setText("interactions", data.interactions ?? 0);
+
+        const ach = document.getElementById("achievement");
+        if(ach) ach.value = data.achievement ?? "";
+
+        renderNotifs(data.notifications || []);
+      });
+    });
+  </script>
 </body>
 </html>
-
-
-
-
