@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import {
   getAuth,
   onAuthStateChanged,
@@ -16,9 +16,6 @@ import {
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-/* ======================
-   ✅ CONFIG + CONSTANTS
-====================== */
 const firebaseConfig = {
   apiKey: "AIzaSyDfZPIg6Nif_Mx_Wwyl0byM6vJCd5BLgo8",
   authDomain: "xuanbinhngo-2026.firebaseapp.com",
@@ -31,27 +28,19 @@ const firebaseConfig = {
 
 const DEFAULT_AVATAR = "https://api.dicebear.com/7.x/thumbs/svg?seed=Xuan12A1";
 
-/** ✅ Link website chính (Firebase Hosting) */
-const HOME_WEBSITE = "https://xuanbinhngo-2026.web.app/";
-
-/** ✅ Khi logout ở GitHub Pages: về index.html (vì repo bạn dùng index.html) */
-const LOGIN_PAGE = "index.html";
-
-const app = initializeApp(firebaseConfig);
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 const $ = (id) => document.getElementById(id);
 
-/* ======================
-   ✅ DOM
-====================== */
-const elAvatar = $("avatar");
-const elName = $("name");
-const elEmail = $("email");
-const inputName = $("displayName");
+/* ✅ DOM đúng theo HTML Dashboard */
+const elAvatar = $("avatarDash");
+const elName = $("nameDash");
+const elEmail = $("emailDash");
+const inputName = $("displayNameDash");
 const inputFile = $("avatarFile");
-const msg = $("msg");
+const msg = $("msgDash");
 
 const elCoins = $("coins");
 const elInteractions = $("interactions");
@@ -60,16 +49,13 @@ const taAchievement = $("achievement");
 const notifList = $("notifList");
 const notifText = $("notifText");
 
-const btnHome = $("btnHome");
-const btnLogout = $("btnLogout");
+const btnHome = $("btnHomeLocal");     // ✅ đúng id bạn đổi trong HTML
+const btnLogout = $("btnLogoutDash");
 const btnResetAvatar = $("btnResetAvatar");
 const btnSaveProfile = $("btnSaveProfile");
 const btnAddNotif = $("btnAddNotif");
 const btnClearNotif = $("btnClearNotif");
 
-/* ======================
-   ✅ UI HELPERS
-====================== */
 function show(text, isError = false) {
   if (!msg) return;
   msg.textContent = text || "";
@@ -78,13 +64,11 @@ function show(text, isError = false) {
 
 function renderNotifs(items = []) {
   if (!notifList) return;
-
   notifList.innerHTML = "";
   if (!items.length) {
     notifList.innerHTML = `<div class="muted">Chưa có thông báo nào.</div>`;
     return;
   }
-
   items.slice(0, 10).forEach((n) => {
     const div = document.createElement("div");
     div.className = "notifItem";
@@ -96,13 +80,9 @@ function renderNotifs(items = []) {
   });
 }
 
-/* ======================
-   ✅ FIRESTORE USER DOC
-====================== */
 async function ensureUserDoc(user) {
   const refUser = doc(db, "users", user.uid);
   const snap = await getDoc(refUser);
-
   if (!snap.exists()) {
     await setDoc(refUser, {
       uid: user.uid,
@@ -120,133 +100,19 @@ async function ensureUserDoc(user) {
   return refUser;
 }
 
-/* ======================
-   ✅ AVATAR CROP (Canvas)
-====================== */
-const cropModal = $("cropModal");
-const cropCanvas = $("cropCanvas");
-const cropPreview = $("cropPreview");
-const zoomRange = $("zoomRange");
-const btnCropClose = $("btnCropClose");
-const btnCropApply = $("btnCropApply");
-const btnCropReset = $("btnCropReset");
+/* ✅ NAV */
+btnHome?.addEventListener("click", (e) => {
+  // nếu là <a>, để nó mở link như bạn set href; không cần handler cũng được
+});
 
-let cropImage = null;
-let cropZoom = 1.2;
-let offsetX = 0;
-let offsetY = 0;
-let dragging = false;
-let lastX = 0;
-let lastY = 0;
+btnLogout?.addEventListener("click", async () => {
+  await signOut(auth);
+  location.hash = "#login";
+});
+
+/* ✅ Avatar: đơn giản hoá (giữ y chang logic base64 bạn đang dùng) */
 let croppedBase64 = null;
 
-const ctx = cropCanvas ? cropCanvas.getContext("2d") : null;
-
-function openCropModal() {
-  if (!cropModal) return;
-  cropModal.classList.add("show");
-  cropModal.setAttribute("aria-hidden", "false");
-}
-function closeCropModal() {
-  if (!cropModal) return;
-  cropModal.classList.remove("show");
-  cropModal.setAttribute("aria-hidden", "true");
-}
-
-function drawCrop() {
-  if (!cropImage || !ctx || !cropCanvas) return;
-
-  const W = cropCanvas.width;
-  const H = cropCanvas.height;
-
-  ctx.clearRect(0, 0, W, H);
-
-  const baseScale = Math.max(W / cropImage.width, H / cropImage.height);
-  const scale = baseScale * cropZoom;
-
-  const imgW = cropImage.width * scale;
-  const imgH = cropImage.height * scale;
-
-  const x = (W - imgW) / 2 + offsetX;
-  const y = (H - imgH) / 2 + offsetY;
-
-  ctx.drawImage(cropImage, x, y, imgW, imgH);
-
-  // viền vàng
-  ctx.save();
-  ctx.strokeStyle = "rgba(255,215,0,0.85)";
-  ctx.lineWidth = 6;
-  ctx.strokeRect(6, 6, W - 12, H - 12);
-  ctx.restore();
-
-  if (cropPreview) {
-    cropPreview.src = cropCanvas.toDataURL("image/jpeg", 0.9);
-  }
-}
-
-function canvasToBase64() {
-  if (!cropCanvas) return "";
-  return cropCanvas.toDataURL("image/jpeg", 0.9);
-}
-
-/* Drag + zoom */
-if (cropCanvas) {
-  cropCanvas.style.cursor = "grab";
-
-  cropCanvas.addEventListener("pointerdown", (e) => {
-    dragging = true;
-    cropCanvas.setPointerCapture(e.pointerId);
-    lastX = e.clientX;
-    lastY = e.clientY;
-    cropCanvas.style.cursor = "grabbing";
-  });
-
-  cropCanvas.addEventListener("pointermove", (e) => {
-    if (!dragging) return;
-    const dx = e.clientX - lastX;
-    const dy = e.clientY - lastY;
-    lastX = e.clientX;
-    lastY = e.clientY;
-    offsetX += dx;
-    offsetY += dy;
-    drawCrop();
-  });
-
-  const stop = () => {
-    dragging = false;
-    cropCanvas.style.cursor = "grab";
-  };
-  cropCanvas.addEventListener("pointerup", stop);
-  cropCanvas.addEventListener("pointercancel", stop);
-}
-
-zoomRange?.addEventListener("input", () => {
-  cropZoom = Number(zoomRange.value);
-  drawCrop();
-});
-
-btnCropClose?.addEventListener("click", () => {
-  closeCropModal();
-  croppedBase64 = null;
-  if (inputFile) inputFile.value = "";
-});
-
-btnCropReset?.addEventListener("click", () => {
-  if (zoomRange) zoomRange.value = "1.2";
-  cropZoom = 1.2;
-  offsetX = 0;
-  offsetY = 0;
-  drawCrop();
-});
-
-btnCropApply?.addEventListener("click", () => {
-  croppedBase64 = canvasToBase64();
-  if (elAvatar && croppedBase64) elAvatar.src = croppedBase64;
-  show("Đã chọn avatar mới (chưa lưu). Bấm 'Lưu hồ sơ' để cập nhật.");
-  closeCropModal();
-});
-
-/* Chọn file -> mở crop */
 inputFile?.addEventListener("change", async () => {
   const file = inputFile.files?.[0];
   if (!file) return;
@@ -262,41 +128,18 @@ inputFile?.addEventListener("change", async () => {
     return;
   }
 
-  const url = URL.createObjectURL(file);
-  cropImage = new Image();
-  cropImage.onload = () => {
-    if (zoomRange) zoomRange.value = "1.2";
-    cropZoom = 1.2;
-    offsetX = 0;
-    offsetY = 0;
-    openCropModal();
-    drawCrop();
+  const reader = new FileReader();
+  reader.onload = () => {
+    croppedBase64 = reader.result;
+    if (elAvatar) elAvatar.src = croppedBase64;
+    show("Đã chọn avatar mới (chưa lưu). Bấm 'Lưu hồ sơ' để cập nhật.");
   };
-  cropImage.src = url;
+  reader.readAsDataURL(file);
 });
 
-/* ======================
-   ✅ NAV BUTTONS (GẮN 1 LẦN)
-====================== */
-btnHome?.addEventListener("click", () => {
-  // mở thẳng qua website chính
-  window.location.assign(HOME_WEBSITE);
-});
-
-btnLogout?.addEventListener("click", async () => {
-  await signOut(auth);
-  // GitHub Pages: quay về index.html
-  window.location.href = LOGIN_PAGE;
-});
-
-/* ======================
-   ✅ DASH ACTIONS
-====================== */
 btnResetAvatar?.addEventListener("click", async () => {
   const u = auth.currentUser;
   if (!u) return;
-
-  await updateProfile(u, { photoURL: DEFAULT_AVATAR });
 
   const refUser = doc(db, "users", u.uid);
   await updateDoc(refUser, {
@@ -318,23 +161,16 @@ btnSaveProfile?.addEventListener("click", async () => {
     if (!u) return;
 
     const newName = (inputName?.value || "").trim() || "User";
-    const avatarToSave = croppedBase64 || "";
-
-    await updateProfile(u, {
-      displayName: newName,
-      photoURL: avatarToSave ? avatarToSave : (u.photoURL || DEFAULT_AVATAR)
-    });
-
     const refUser = doc(db, "users", u.uid);
+
+    await updateProfile(u, { displayName: newName }); // ✅ không nhét base64 vào photoURL
+
     await updateDoc(refUser, {
       displayName: newName,
-      avatarBase64: avatarToSave,
-      photoURL: avatarToSave ? "" : (u.photoURL || DEFAULT_AVATAR),
+      avatarBase64: croppedBase64 || "",
+      photoURL: croppedBase64 ? "" : (u.photoURL || DEFAULT_AVATAR),
       updatedAt: serverTimestamp()
     });
-
-    if (elName) elName.textContent = newName;
-    if (elAvatar) elAvatar.src = avatarToSave || u.photoURL || DEFAULT_AVATAR;
 
     croppedBase64 = null;
     if (inputFile) inputFile.value = "";
@@ -358,9 +194,7 @@ btnAddNotif?.addEventListener("click", async () => {
     const data = snap.data() || {};
     const arr = Array.isArray(data.notifications) ? data.notifications : [];
 
-    const newItem = { title: "📢 Thông báo", text, ts: Date.now() };
-    const next = [newItem, ...arr].slice(0, 15);
-
+    const next = [{ title: "📢 Thông báo", text, ts: Date.now() }, ...arr].slice(0, 15);
     await updateDoc(refUser, { notifications: next, updatedAt: serverTimestamp() });
 
     if (notifText) notifText.value = "";
@@ -378,41 +212,30 @@ btnClearNotif?.addEventListener("click", async () => {
   show("Đã xóa tất cả thông báo.");
 });
 
-/* ======================
-   ✅ AUTH + REALTIME
-====================== */
+/* ✅ AUTH + realtime */
 let unsubUserDoc = null;
 
 onAuthStateChanged(auth, async (user) => {
-  if (unsubUserDoc) {
-    unsubUserDoc();
-    unsubUserDoc = null;
-  }
+  if (unsubUserDoc) { unsubUserDoc(); unsubUserDoc = null; }
 
   if (!user) {
-    // GitHub Pages thường không có login.html -> về index.html
-    window.location.href = LOGIN_PAGE;
+    location.hash = "#login";
     return;
   }
 
-  const refUser = await ensureUserDoc(user);
+  // ✅ đã login thì chắc chắn ở dashboard
+  location.hash = "#dashboard";
 
-  // UI từ auth trước
-  if (elName) elName.textContent = user.displayName || "User";
-  if (elEmail) elEmail.textContent = user.email || (user.isAnonymous ? "Tài khoản Khách" : "—");
-  if (inputName) inputName.value = user.displayName || "";
+  const refUser = await ensureUserDoc(user);
 
   unsubUserDoc = onSnapshot(refUser, (snap) => {
     const data = snap.data() || {};
-
-    const avt =
-      data.avatarBase64 ||
-      data.photoURL ||
-      user.photoURL ||
-      DEFAULT_AVATAR;
+    const avt = data.avatarBase64 || data.photoURL || user.photoURL || DEFAULT_AVATAR;
 
     if (elAvatar) elAvatar.src = avt;
     if (elName) elName.textContent = data.displayName || user.displayName || "User";
+    if (elEmail) elEmail.textContent = user.email || (user.isAnonymous ? "Tài khoản Khách" : "—");
+    if (inputName) inputName.value = data.displayName || user.displayName || "";
 
     if (elCoins) elCoins.textContent = data.coins ?? 0;
     if (elInteractions) elInteractions.textContent = data.interactions ?? 0;
