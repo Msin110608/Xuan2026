@@ -107,7 +107,7 @@ btnGuest?.addEventListener("click", async () => {
 btnLogout?.addEventListener("click", async () => {
   await signOut(auth);
   show("Đã đăng xuất.");
-  window.location.hash = "#register";
+  location.hash = "#register";
 });
 
 /* Status demo */
@@ -129,3 +129,4 @@ onAuthStateChanged(auth, (user) => {
     userEmail.textContent = user.isAnonymous ? "Tài khoản Ẩn danh (Khách)" : (user.email || "");
   }
 });
+
