@@ -16,6 +16,11 @@ import {
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
+/* =========================
+   ✅ LINK TRANG CHỦ (FIX)
+   ========================= */
+const HOME_WEBSITE = "https://xuanbinhngo-2026.web.app"; // bấm "Trang chủ" -> về web chính
+
 /* ====== CONFIG ====== */
 const firebaseConfig = {
   apiKey: "AIzaSyDfZPIg6Nif_Mx_Wwyl0byM6vJCd5BLgo8",
@@ -54,6 +59,9 @@ const btnSaveProfile = $("btnSaveProfile");
 const btnAddNotif = $("btnAddNotif");
 const btnClearNotif = $("btnClearNotif");
 
+/* ✅ NÚT TRANG CHỦ (FIX: gắn 1 lần duy nhất) */
+const btnHome = $("btnHome");
+
 const DEFAULT_AVATAR = "https://api.dicebear.com/7.x/thumbs/svg?seed=Xuan12A1";
 
 /* ====== UI HELPERS ====== */
@@ -64,6 +72,7 @@ function show(text, isError = false) {
 }
 
 function renderNotifs(items = []) {
+  if (!notifList) return;
   notifList.innerHTML = "";
   if (!items.length) {
     notifList.innerHTML = `<div class="muted">Chưa có thông báo nào.</div>`;
@@ -89,9 +98,7 @@ async function ensureUserDoc(user) {
     await setDoc(refUser, {
       uid: user.uid,
       displayName: user.displayName || "User",
-      // avatarBase64 ưu tiên để lưu avatar tự chọn (Storage-free)
       avatarBase64: "",
-      // photoURL vẫn giữ để fallback
       photoURL: user.photoURL || DEFAULT_AVATAR,
       coins: 0,
       interactions: 0,
@@ -106,7 +113,6 @@ async function ensureUserDoc(user) {
 
 /* =======================
    AVATAR CROP (Canvas)
-   - Lưu vào Firestore dạng Base64
 ======================= */
 const cropModal = $("cropModal");
 const cropCanvas = $("cropCanvas");
@@ -181,7 +187,6 @@ function drawCrop() {
 
 function canvasToBase64() {
   if (!cropCanvas) return "";
-  // jpeg nhẹ hơn
   return cropCanvas.toDataURL("image/jpeg", 0.9);
 }
 
@@ -208,15 +213,12 @@ if (cropCanvas) {
     drawCrop();
   });
 
-  cropCanvas.addEventListener("pointerup", () => {
+  const stopDrag = () => {
     dragging = false;
     cropCanvas.style.cursor = "grab";
-  });
-
-  cropCanvas.addEventListener("pointercancel", () => {
-    dragging = false;
-    cropCanvas.style.cursor = "grab";
-  });
+  };
+  cropCanvas.addEventListener("pointerup", stopDrag);
+  cropCanvas.addEventListener("pointercancel", stopDrag);
 }
 
 zoomRange?.addEventListener("input", () => {
@@ -236,9 +238,7 @@ btnCropReset?.addEventListener("click", () => {
 });
 
 btnCropApply?.addEventListener("click", () => {
-  // Lưu base64 để khi bấm "Lưu hồ sơ" mới update Firestore
   croppedBase64 = canvasToBase64();
-
   if (elAvatar && croppedBase64) elAvatar.src = croppedBase64;
   show("Đã chọn avatar mới (chưa lưu). Bấm 'Lưu hồ sơ' để cập nhật.");
   closeCropModal();
@@ -277,12 +277,23 @@ inputFile?.addEventListener("change", async () => {
 });
 
 /* =======================
+   ✅ FIX NÚT TRANG CHỦ (1 lần)
+======================= */
+btnHome?.addEventListener("click", () => {
+  window.location.href = HOME_WEBSITE;
+});
+
+/* =======================
    AUTH + REALTIME FIRESTORE
 ======================= */
 let unsubUserDoc = null;
 
 btnLogout?.addEventListener("click", async () => {
   await signOut(auth);
+
+  // ✅ Nếu GitHub của bạn có login.html thì giữ dòng này.
+  // Nếu bạn chỉ có 1 file index.html thì đổi thành:
+  // window.location.href = "index.html";
   window.location.href = "login.html";
 });
 
@@ -290,7 +301,6 @@ btnResetAvatar?.addEventListener("click", async () => {
   const u = auth.currentUser;
   if (!u) return;
 
-  // reset cả auth + firestore
   await updateProfile(u, { photoURL: DEFAULT_AVATAR });
 
   const refUser = doc(db, "users", u.uid);
@@ -314,13 +324,9 @@ btnSaveProfile?.addEventListener("click", async () => {
     if (!u) return;
 
     const newName = (inputName?.value || "").trim() || "User";
-
-    // nếu có avatar crop -> lưu base64, còn không thì giữ nguyên
-    let avatarToSave = croppedBase64 || "";
+    const avatarToSave = croppedBase64 || "";
 
     // update auth
-    // photoURL auth: nếu có base64 thì set tạm photoURL = base64 (vẫn hiển thị)
-    // (có thể bỏ nếu bạn không muốn auth chứa base64)
     await updateProfile(u, {
       displayName: newName,
       photoURL: avatarToSave ? avatarToSave : (u.photoURL || DEFAULT_AVATAR)
@@ -330,13 +336,11 @@ btnSaveProfile?.addEventListener("click", async () => {
     const refUser = doc(db, "users", u.uid);
     await updateDoc(refUser, {
       displayName: newName,
-      avatarBase64: avatarToSave, // quan trọng
-      // photoURL để fallback
+      avatarBase64: avatarToSave,
       photoURL: avatarToSave ? "" : (u.photoURL || DEFAULT_AVATAR),
       updatedAt: serverTimestamp()
     });
 
-    // update UI
     if (elName) elName.textContent = newName;
     if (elAvatar) elAvatar.src = avatarToSave || u.photoURL || DEFAULT_AVATAR;
 
@@ -344,7 +348,7 @@ btnSaveProfile?.addEventListener("click", async () => {
     if (inputFile) inputFile.value = "";
     show("Đã lưu hồ sơ!");
   } catch (e) {
-    show(e.message, true);
+    show(e?.message || "Lỗi lưu hồ sơ", true);
   }
 });
 
@@ -371,7 +375,7 @@ btnAddNotif?.addEventListener("click", async () => {
     notifText.value = "";
     show("Đã đăng thông báo!");
   } catch (e) {
-    show(e.message, true);
+    show(e?.message || "Lỗi đăng thông báo", true);
   }
 });
 
@@ -385,9 +389,13 @@ btnClearNotif?.addEventListener("click", async () => {
 
 /* Realtime load */
 onAuthStateChanged(auth, async (user) => {
-  if (unsubUserDoc) unsubUserDoc();
+  if (unsubUserDoc) {
+    unsubUserDoc();
+    unsubUserDoc = null;
+  }
 
   if (!user) {
+    // ✅ Nếu repo GitHub của bạn không có login.html thì đổi thành index.html
     window.location.href = "login.html";
     return;
   }
@@ -403,14 +411,12 @@ onAuthStateChanged(auth, async (user) => {
   unsubUserDoc = onSnapshot(refUser, (snap) => {
     const data = snap.data() || {};
 
-    // ưu tiên avatarBase64, nếu rỗng fallback photoURL/auth/default
     const avt =
       data.avatarBase64 ||
       data.photoURL ||
       user.photoURL ||
       DEFAULT_AVATAR;
-// ✅ Link trang chủ 
-const HOME_WEBSITE = "https://xuanbinhngo-2026.web.app"; 
+
     if (elAvatar) elAvatar.src = avt;
     if (elName) elName.textContent = data.displayName || user.displayName || "User";
 
@@ -419,12 +425,5 @@ const HOME_WEBSITE = "https://xuanbinhngo-2026.web.app";
     if (taAchievement) taAchievement.value = data.achievement ?? "";
 
     renderNotifs(data.notifications || []);
-    const btnHome = document.getElementById("btnHome");
-
-btnHome?.addEventListener("click", () => {
-  
-  window.location.href = HOME_WEBSITE;
-});
-
   });
 });
