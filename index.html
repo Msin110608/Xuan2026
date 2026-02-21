@@ -329,12 +329,14 @@
   <!-- DASHBOARD VIEW -->
   <section id="viewDashboard" class="view">
     <div class="topbar">
-      <h1>🎊 Thông tin người dùng</h1>
-      <div class="row">
-        <button id="btnHome" class="btnDash btn" type="button">Trang chủ</button>
-        <button id="btnLogoutDash" class="btnDash btn secondary" type="button">Đăng xuất</button>
-      </div>
-    </div>
+  <h1>🎊 Thông tin người dùng</h1>
+  <div class="row">
+    <!-- ✅ Đổi id để không bị JS cũ auto chuyển về web chính -->
+    <button id="btnHomeLocal" class="btnDash btn" type="button">Trang chủ</button>
+
+    <button id="btnLogoutDash" class="btnDash btn secondary" type="button">Đăng xuất</button>
+  </div>
+</div>
 
     <div class="wrap">
       <section class="card">
@@ -855,3 +857,4 @@
   </script>
 </body>
 </html>
+
