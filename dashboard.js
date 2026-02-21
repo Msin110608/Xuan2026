@@ -16,12 +16,9 @@ import {
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-/* =========================
-   ✅ LINK TRANG CHỦ (FIX)
-   ========================= */
-const HOME_WEBSITE = "https://xuanbinhngo-2026.web.app"; // bấm "Trang chủ" -> về web chính
-
-/* ====== CONFIG ====== */
+/* ======================
+   ✅ CONFIG + CONSTANTS
+====================== */
 const firebaseConfig = {
   apiKey: "AIzaSyDfZPIg6Nif_Mx_Wwyl0byM6vJCd5BLgo8",
   authDomain: "xuanbinhngo-2026.firebaseapp.com",
@@ -32,13 +29,23 @@ const firebaseConfig = {
   measurementId: "G-FN0BFL9FQQ"
 };
 
+const DEFAULT_AVATAR = "https://api.dicebear.com/7.x/thumbs/svg?seed=Xuan12A1";
+
+/** ✅ Link website chính (Firebase Hosting) */
+const HOME_WEBSITE = "https://xuanbinhngo-2026.web.app/";
+
+/** ✅ Khi logout ở GitHub Pages: về index.html (vì repo bạn dùng index.html) */
+const LOGIN_PAGE = "index.html";
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 const $ = (id) => document.getElementById(id);
 
-/* ====== DOM ====== */
+/* ======================
+   ✅ DOM
+====================== */
 const elAvatar = $("avatar");
 const elName = $("name");
 const elEmail = $("email");
@@ -53,18 +60,16 @@ const taAchievement = $("achievement");
 const notifList = $("notifList");
 const notifText = $("notifText");
 
+const btnHome = $("btnHome");
 const btnLogout = $("btnLogout");
 const btnResetAvatar = $("btnResetAvatar");
 const btnSaveProfile = $("btnSaveProfile");
 const btnAddNotif = $("btnAddNotif");
 const btnClearNotif = $("btnClearNotif");
 
-/* ✅ NÚT TRANG CHỦ (FIX: gắn 1 lần duy nhất) */
-const btnHome = $("btnHome");
-
-const DEFAULT_AVATAR = "https://api.dicebear.com/7.x/thumbs/svg?seed=Xuan12A1";
-
-/* ====== UI HELPERS ====== */
+/* ======================
+   ✅ UI HELPERS
+====================== */
 function show(text, isError = false) {
   if (!msg) return;
   msg.textContent = text || "";
@@ -73,11 +78,13 @@ function show(text, isError = false) {
 
 function renderNotifs(items = []) {
   if (!notifList) return;
+
   notifList.innerHTML = "";
   if (!items.length) {
     notifList.innerHTML = `<div class="muted">Chưa có thông báo nào.</div>`;
     return;
   }
+
   items.slice(0, 10).forEach((n) => {
     const div = document.createElement("div");
     div.className = "notifItem";
@@ -89,7 +96,9 @@ function renderNotifs(items = []) {
   });
 }
 
-/* ====== FIRESTORE USER DOC ====== */
+/* ======================
+   ✅ FIRESTORE USER DOC
+====================== */
 async function ensureUserDoc(user) {
   const refUser = doc(db, "users", user.uid);
   const snap = await getDoc(refUser);
@@ -111,9 +120,9 @@ async function ensureUserDoc(user) {
   return refUser;
 }
 
-/* =======================
-   AVATAR CROP (Canvas)
-======================= */
+/* ======================
+   ✅ AVATAR CROP (Canvas)
+====================== */
 const cropModal = $("cropModal");
 const cropCanvas = $("cropCanvas");
 const cropPreview = $("cropPreview");
@@ -129,8 +138,6 @@ let offsetY = 0;
 let dragging = false;
 let lastX = 0;
 let lastY = 0;
-
-// base64 cuối cùng (để lưu)
 let croppedBase64 = null;
 
 const ctx = cropCanvas ? cropCanvas.getContext("2d") : null;
@@ -144,13 +151,6 @@ function closeCropModal() {
   if (!cropModal) return;
   cropModal.classList.remove("show");
   cropModal.setAttribute("aria-hidden", "true");
-}
-
-function resetCropView() {
-  cropZoom = Number(zoomRange?.value || 1.2);
-  offsetX = 0;
-  offsetY = 0;
-  drawCrop();
 }
 
 function drawCrop() {
@@ -179,7 +179,6 @@ function drawCrop() {
   ctx.strokeRect(6, 6, W - 12, H - 12);
   ctx.restore();
 
-  // update preview
   if (cropPreview) {
     cropPreview.src = cropCanvas.toDataURL("image/jpeg", 0.9);
   }
@@ -190,7 +189,7 @@ function canvasToBase64() {
   return cropCanvas.toDataURL("image/jpeg", 0.9);
 }
 
-/* Drag + zoom events */
+/* Drag + zoom */
 if (cropCanvas) {
   cropCanvas.style.cursor = "grab";
 
@@ -213,12 +212,12 @@ if (cropCanvas) {
     drawCrop();
   });
 
-  const stopDrag = () => {
+  const stop = () => {
     dragging = false;
     cropCanvas.style.cursor = "grab";
   };
-  cropCanvas.addEventListener("pointerup", stopDrag);
-  cropCanvas.addEventListener("pointercancel", stopDrag);
+  cropCanvas.addEventListener("pointerup", stop);
+  cropCanvas.addEventListener("pointercancel", stop);
 }
 
 zoomRange?.addEventListener("input", () => {
@@ -234,7 +233,10 @@ btnCropClose?.addEventListener("click", () => {
 
 btnCropReset?.addEventListener("click", () => {
   if (zoomRange) zoomRange.value = "1.2";
-  resetCropView();
+  cropZoom = 1.2;
+  offsetX = 0;
+  offsetY = 0;
+  drawCrop();
 });
 
 btnCropApply?.addEventListener("click", () => {
@@ -262,41 +264,34 @@ inputFile?.addEventListener("change", async () => {
 
   const url = URL.createObjectURL(file);
   cropImage = new Image();
-
   cropImage.onload = () => {
     if (zoomRange) zoomRange.value = "1.2";
     cropZoom = 1.2;
     offsetX = 0;
     offsetY = 0;
-
     openCropModal();
     drawCrop();
   };
-
   cropImage.src = url;
 });
 
-/* =======================
-   ✅ FIX NÚT TRANG CHỦ (1 lần)
-======================= */
+/* ======================
+   ✅ NAV BUTTONS (GẮN 1 LẦN)
+====================== */
 btnHome?.addEventListener("click", () => {
-  window.location.href = HOME_WEBSITE;
+  // mở thẳng qua website chính
+  window.location.assign(HOME_WEBSITE);
 });
-
-/* =======================
-   AUTH + REALTIME FIRESTORE
-======================= */
-let unsubUserDoc = null;
 
 btnLogout?.addEventListener("click", async () => {
   await signOut(auth);
-
-  // ✅ Nếu GitHub của bạn có login.html thì giữ dòng này.
-  // Nếu bạn chỉ có 1 file index.html thì đổi thành:
-  // window.location.href = "index.html";
-  window.location.href = "login.html";
+  // GitHub Pages: quay về index.html
+  window.location.href = LOGIN_PAGE;
 });
 
+/* ======================
+   ✅ DASH ACTIONS
+====================== */
 btnResetAvatar?.addEventListener("click", async () => {
   const u = auth.currentUser;
   if (!u) return;
@@ -316,7 +311,6 @@ btnResetAvatar?.addEventListener("click", async () => {
   show("Đã đặt avatar mặc định.");
 });
 
-/* ✅ Lưu hồ sơ: update displayName + avatarBase64 */
 btnSaveProfile?.addEventListener("click", async () => {
   try {
     show("");
@@ -326,13 +320,11 @@ btnSaveProfile?.addEventListener("click", async () => {
     const newName = (inputName?.value || "").trim() || "User";
     const avatarToSave = croppedBase64 || "";
 
-    // update auth
     await updateProfile(u, {
       displayName: newName,
       photoURL: avatarToSave ? avatarToSave : (u.photoURL || DEFAULT_AVATAR)
     });
 
-    // update firestore
     const refUser = doc(db, "users", u.uid);
     await updateDoc(refUser, {
       displayName: newName,
@@ -352,7 +344,6 @@ btnSaveProfile?.addEventListener("click", async () => {
   }
 });
 
-/* Notifications */
 btnAddNotif?.addEventListener("click", async () => {
   try {
     show("");
@@ -372,7 +363,7 @@ btnAddNotif?.addEventListener("click", async () => {
 
     await updateDoc(refUser, { notifications: next, updatedAt: serverTimestamp() });
 
-    notifText.value = "";
+    if (notifText) notifText.value = "";
     show("Đã đăng thông báo!");
   } catch (e) {
     show(e?.message || "Lỗi đăng thông báo", true);
@@ -387,7 +378,11 @@ btnClearNotif?.addEventListener("click", async () => {
   show("Đã xóa tất cả thông báo.");
 });
 
-/* Realtime load */
+/* ======================
+   ✅ AUTH + REALTIME
+====================== */
+let unsubUserDoc = null;
+
 onAuthStateChanged(auth, async (user) => {
   if (unsubUserDoc) {
     unsubUserDoc();
@@ -395,8 +390,8 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   if (!user) {
-    // ✅ Nếu repo GitHub của bạn không có login.html thì đổi thành index.html
-    window.location.href = "login.html";
+    // GitHub Pages thường không có login.html -> về index.html
+    window.location.href = LOGIN_PAGE;
     return;
   }
 
@@ -407,7 +402,6 @@ onAuthStateChanged(auth, async (user) => {
   if (elEmail) elEmail.textContent = user.email || (user.isAnonymous ? "Tài khoản Khách" : "—");
   if (inputName) inputName.value = user.displayName || "";
 
-  // Realtime firestore
   unsubUserDoc = onSnapshot(refUser, (snap) => {
     const data = snap.data() || {};
 
