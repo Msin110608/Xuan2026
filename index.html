@@ -535,26 +535,32 @@
   </script>
 
   <!-- ✅ SWITCH VIEW (1 nơi duy nhất) -->
-  <script>
-    const viewRegister = document.getElementById("viewRegister");
-    const viewLogin = document.getElementById("viewLogin");
-    const viewDashboard = document.getElementById("viewDashboard");
+ <script>
+  const viewRegister = document.getElementById("viewRegister");
+  const viewLogin = document.getElementById("viewLogin");
+  const viewDashboard = document.getElementById("viewDashboard");
 
-    const goLogin = document.getElementById("goLogin");
-    const goRegister = document.getElementById("goRegister");
+  function showView(which){
+    [viewRegister, viewLogin, viewDashboard].forEach(v => v.classList.remove("active"));
+    if(which === "register") viewRegister.classList.add("active");
+    if(which === "login") viewLogin.classList.add("active");
+    if(which === "dashboard") viewDashboard.classList.add("active");
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
 
-    function showView(which){
-      [viewRegister, viewLogin, viewDashboard].forEach(v => v.classList.remove("active"));
-      if(which === "register") viewRegister.classList.add("active");
-      if(which === "login") viewLogin.classList.add("active");
-      if(which === "dashboard") viewDashboard.classList.add("active");
-      window.scrollTo({top:0, behavior:"smooth"});
-    }
+  // ✅ cho module gọi được
+  window.showView = showView;
 
-    goLogin?.addEventListener("click", ()=> showView("login"));
-    goRegister?.addEventListener("click", ()=> showView("register"));
-    document.getElementById("btnHome")?.addEventListener("click", ()=> showView("register"));
-  </script>
+  // ✅ router theo hash
+  function route(){
+    const h = (location.hash || "#register").replace("#","");
+    if(h === "login") showView("login");
+    else if(h === "dashboard") showView("dashboard");
+    else showView("register");
+  }
+  window.addEventListener("hashchange", route);
+  route();
+</script>
 
   <!-- ✅ ALL-IN-ONE FIREBASE JS (1 lần duy nhất) -->
   <script type="module">
@@ -860,6 +866,7 @@
   </script>
 </body>
 </html>
+
 
 
 
